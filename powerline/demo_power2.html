@@ -24,23 +24,19 @@
 						<li><div class="leg2"></div> Инфраструктура ЛЭП</li>
 						<li><div class="leg1"></div> Проблемные участки ЛЭП</li>
 						<li><div class="leg3"></div> Строения в границах ОЗ</li>
-						<li><div class="leg3"></div> Кадастровые границы</li>
+						<li><div class="leg4"></div> Кадастровые границы</li>
 					</ul>
 	</div>
 	<div id="map"></div>
 	<script>
 		var map = L.map('map').setView([55.8693, 48.7434], 11);
 
-
-        //Load all the layers from GeoMixer map and add them to Leaflet map
         L.gmx.loadMap('803A9369B538429A910D5A90587D4422', {leafletMap: map});
-		var layerGroup = publicInterface.afterViewer({}, map);
-		layerGroup.addTo(map);
-
 
 		var bounds = [[55.8423, 48.4150], [55.9336, 49.1579]];
     
     	L.rectangle(bounds, {color: "white", weight: 0.5, fillOpacity: 0.0}).addTo(map);
+        
 	</script>
 </body>
 </html>
