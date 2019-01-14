@@ -1,0 +1,40 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Demo Mosreg</title>
+	<meta charset="utf-8" />
+    <style>
+		html, body, #map {
+			height: 100%;
+			margin: 0px;
+		}
+    </style>
+
+	<link rel="stylesheet" href="http://www.kosmosnimki.ru/lib/geomixer_1.3/geomixer.css" />
+	<script src="http://www.kosmosnimki.ru/lib/geomixer_1.3/geomixer-src.js"></script>
+
+	<link rel="stylesheet" href="demo_mosreg.css" />
+	<!--<script src="//scanex.github.io/GMXPluginCadatsre/cadastre.js"></script>
+	<link rel="stylesheet" href="//maps.kosmosnimki.ru/api/plugins/external/GMXPluginCadastre/cadastre.css?4ae9925b3cf74ab79535041a00bbe858&4ae9925b3cf74ab79535041a00bbe858">-->
+</head>
+<body>
+	<div class="legend">
+					<ul>
+						<li><div class="leg2"></div> Маска без полигонизации</li>
+						<li><div class="leg1"></div> Маска с полигонизацией</li>
+						<!--<li><div class="leg3"></div> Строения в границах ОЗ</li>
+						<li><div class="leg4"></div> Кадастровые границы</li>-->
+					</ul>
+	</div>
+	<div id="map"></div>
+	<script>
+		var map = L.map('map').setView([38.654081, 55.605332], 18);
+
+        L.gmx.loadMap('1C69E7FD91C248B7A8D275A80B1EA6E6', {leafletMap: map});
+
+		
+        
+	</script>
+</body>
+</html>
