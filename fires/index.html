@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script src="spatial_query.js"></script>
+
+    <link rel="stylesheet" href="../../leaflet/leaflet.css" />
+    <script src="../../leaflet/leaflet-src.js"></script>
+
+	<script src="../build/leaflet-geomixer-dev.js?key=U92596WMIH"></script>
+    
+    <script src="../build/iconLayer.js"></script>
+    <link rel="stylesheet" href="../css/iconLayers.css" />
+    <link rel="stylesheet" href="../../geomixer/geomixer.css" />
+
+    <link rel="stylesheet" href="../css/demo.css" />
+
+	<script src="fires/Fires.js"></script>
+
+    <script>
+
+        var startDate = new Date('2016/07/25');
+        var oneDay = 1000*60*60*24,
+        period = oneDay * 1,
+        now = startDate.getTime(),
+        ddt1 = new Date( now - now % oneDay - oneDay), //beginning of the previous UTC day
+        ddt2 = new Date(ddt1.getTime() + period); //beginning of the current UTC day
+
+        //var d = new Date();
+        var curr_date = ddt1.getDate();
+        var curr_month = ddt1.getMonth()+1;
+        var curr_year = ddt1.getFullYear();
+        if(curr_date<10){curr_date='0'+curr_date};
+        if(curr_month<10){curr_month='0'+curr_month};
+        var time = (curr_year + "-" + curr_month + "-" + curr_date);
+
+    </script>
+
+    <script>
+
+            var providers = {};
+
+            providers['1'] = {
+              title: 'NPP Satellite',
+              icon: '../img/layers-satellite.png',
+              layer: L.tileLayer('https://map1a.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/' + time + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg', {
+                  maxZoom: 19,
+                  attribution: '&copy; <a href="https://worldview.earthdata.nasa.gov">NASA Worldview</a>'
+              })
+          };
+
+            providers['2'] = {
+              title: 'Map',
+              icon: '../img/layers-vector.png',
+              layer: L.tileLayer('http://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+                  maxZoom: 18,
+                  attribution: '&copy; <a href="http://www.carto.com/">Carto</a>'
+              })
+          }
+
+
+          
+    </script>
+
+	<title>Demo map Fires New</title>
+</head>
+
+<body>
+	<div id="map"></div>
+
+
+    <div id="controls" class="controls_date">
+        <div style="display:inline-flex; ">
+            <div id="prev" class="prev_button"></div>
+                <span id="timeInfo" style="padding: 4px 8px 0 12px"></span><span id="timeInfo2" style="padding: 4px 12px 0 8px"></span>
+            <div id="next" class="next_button"></div>
+        </div>
+    </div>
+
+
+<script>
+    var map = new L.Map('map', {
+        layers: [],
+        //crs: L.CRS.EPSG3395,
+        center: new L.LatLng(64.09, 89.29),
+        attributionControl: true,
+        zoomControl: true,
+        scrollWheelZoom: false,
+        zoom: 5
+    });
+
+
+    var Wind = L.tileLayer( "http://{s}.maps.owm.io:8099/5905a6d85dd7350001431cf2/{z}/{x}/{y}?hash=6b2ac856186c78ee47747cfff10482b4");
+
+    var Population = L.tileLayer.wms('https://geoservice.dlr.de/eoc/land/wms?', {
+    layers: 'GUF28_DLR_v1_Mosaic',
+    transparent: true,
+    format: 'image/png',
+    styles: 'guf_8bit',
+    attribution: '&copy; DLR GUF'}).addTo(map);
+
+    Wind.addTo(map);
+
+    
+    var LayersControl = L.control.layers({Wind}, {Population}, {collapsed: true}).addTo(map);
+    
+    
+        var updateInfo = function() {
+			var zz = function(x) { return x < 10 ? "0" + x : x}
+            document.getElementById('timeInfo').innerHTML = 
+                zz(ddt1.getUTCDate()) + '.' + zz(ddt1.getUTCMonth() + 1) + '.' + zz(ddt1.getUTCFullYear());
+            document.getElementById('timeInfo2').innerHTML = 
+                zz(ddt2.getUTCDate()) + '.' + zz(ddt2.getUTCMonth() + 1) + '.' + zz(ddt2.getUTCFullYear());
+		}
+        
+        updateInfo();
+       
+    var _params = {
+        minGeomZoom: 8,
+        minHotspotZoom: 11,
+        hotspotLayerName: 'F2840D287CD943C4B1122882C5B92565',
+        dailyLayerName: 'E58063D97D534BB4BBDFF07FE5CB17F2',
+        hotspotTimeAttr: 'DateTime',
+        hotspotIDAttr: 'SpotID',
+        clusterTimeAttr: 'DateTime',
+        totalPower: 'TotalPower',
+        mapName: 'NDFYK'
+    };
+    buildModisPixelDimensionsTable();
+
+    var layerInfo = {
+        properties: {
+            //type: 'Vector',
+            title: 'FireClusters',
+            name: 'fireClustersLayer' + _params.hotspotLayerName,
+            attributes: ['scale', 'count', 'label', 'startDate', 'endDate', 'dateRange', 'isIndustrial'],
+            styles: [{
+                Filter: '"isIndustrial"=0',
+                //Balloon: _gtxt('firesWidget.LayerClusterBalloon'),
+                MinZoom:1,
+                MaxZoom:_params.minGeomZoom - 1,
+                RenderStyle: {
+                    fill: {
+                        radialGradient: {
+                            r1: 0,
+                            r2: '[scale]*20',
+                            addColorStop: [
+                                [0, 0xffff00, 50],
+                                [1, 0xff0000, 50]
+                            ]
+                        }
+                    },
+                    label: {
+                        size: 12,
+                        color: 0x333,
+                        field: 'label',
+                        align: 'center'
+                    }
+                }
+            },
+            {
+                Filter: '"isIndustrial"=1',
+                //Balloon: _gtxt('firesWidget.LayerClusterBalloonIndustrial'),
+                MinZoom:1,
+                MaxZoom:_params.minGeomZoom - 1,
+                RenderStyle: {
+                    fill: {
+                        radialGradient: {
+                            r1: 0,
+                            r2: '[scale]*20',
+                            addColorStop: [
+                                [0, 0xffffff, 80],
+                                [1, 0xffaa00, 80]
+                            ]
+                        }
+                    }
+                }
+            }]
+        }
+    };
+    var clusterLayer = L.gmx.createLayer(layerInfo);
+    LayersControl.addOverlay(clusterLayer, layerInfo.properties.title);
+
+    var layerInfo1 = {
+        properties: {
+            type: 'Vector',
+            title: 'FirePolygons',
+            name: 'fireClustersGeomLayer' + _params.dailyLayerName,
+            attributes: ['scale', 'count', 'label', 'startDate', 'endDate', 'dateRange', 'isIndustrial'],
+            styles: [{
+                //Balloon: _gtxt('firesWidget.LayerGeometryBalloon'),
+                MinZoom: _params.minGeomZoom,
+                MaxZoom: 21,
+                RenderStyle: {
+                    outline: { color: 0xff0000, thickness: 2 }, 
+                    fill:    { color: 0xff0000, opacity: 15 }
+                },
+                HoverStyle: {
+                    outline: { color: 0xff0000, thickness: 3 }, 
+                    fill:    { color: 0xff0000, opacity: 45 }
+                }
+            }]
+        }
+    }
+    var clusterGeomLayer = L.gmx.createLayer(layerInfo1)
+        .addTo(map);
+    //LayersControl.addOverlay(clusterGeomLayer, layerInfo1.properties.title);
+
+    L.gmx.loadLayers([
+        {mapID: _params.mapName, layerID: _params.hotspotLayerName}
+        ,
+        {mapID: _params.mapName, layerID: _params.dailyLayerName}
+    ]).then(function(hotspotLayer, dailyLayer) {
+        hotspotLayer.setDateInterval(ddt1, ddt2);
+        dailyLayer.setDateInterval(ddt1, ddt2);
+        //LayersControl.addOverlay(hotspotLayer, hotspotLayer._gmx.properties.title);
+        //LayersControl.addOverlay(dailyLayer, dailyLayer._gmx.properties.title);
+
+        var observerDailyClustersLayer = dailyLayer.addObserver({
+            type: 'update',
+            dateInterval: [ddt1, ddt2],
+            callback: updateClustersByObject(clusterLayer, false, 'ParentClusterId', 'ClusterId', 'HotSpotCount', _params.clusterTimeAttr, dailyLayer)
+        });
+
+        var observerLayer = hotspotLayer.addObserver({
+            type: 'update',
+            dateInterval: [ddt1, ddt2],
+            callback: updateClustersByObject(clusterGeomLayer, true, 'ClusterID', _params.hotspotIDAttr, null, _params.hotspotTimeAttr, hotspotLayer)
+        });
+        var chkZoom = function() {
+            var zoom = map._zoom;
+            if (zoom < _params.minGeomZoom) {
+                if (!clusterLayer._map) {
+                    observerDailyClustersLayer.activate();
+                    map.addLayer(clusterLayer);
+                }
+                if (clusterGeomLayer._map) {
+                    observerLayer.deactivate();
+                    map.removeLayer(clusterGeomLayer);
+                }
+            } else {
+                if (!clusterGeomLayer._map) {
+                    observerLayer.activate();
+                    map.addLayer(clusterGeomLayer);
+                }
+                if (clusterLayer._map) {
+                    observerDailyClustersLayer.deactivate();
+                    map.removeLayer(clusterLayer);
+                }
+            }
+            if (zoom < _params.minHotspotZoom) {
+                if (hotspotLayer._map) map.removeLayer(hotspotLayer);
+            } else {
+                if (!hotspotLayer._map) map.addLayer(hotspotLayer);
+            }
+            
+        };
+        map.on('zoomend', chkZoom);
+        chkZoom();
+
+        var outBbox = gmxAPIutils.bounds([[0, -91], [0, -91]]);
+        var updateBbox = function() {
+            var screenBounds = map.getBounds(),
+                p1 = screenBounds.getNorthWest(),
+                p2 = screenBounds.getSouthEast(),
+                bbox = gmxAPIutils.bounds([[p1.lng, p1.lat], [p2.lng, p2.lat]]),
+                zoom = map._zoom;
+            observerLayer.setBounds(clusterGeomLayer._map ? bbox : outBbox);
+            observerDailyClustersLayer.setBounds(clusterLayer._map ? bbox : outBbox);
+        };
+        map.on('moveend', updateBbox);
+        updateBbox();
+
+        
+        //controls
+        
+
+
+
+        document.getElementById("prev").onclick = function() {
+
+            var curr_date = ddt1.getDate();
+            var curr_month = ddt1.getMonth()+1;
+            var curr_year = ddt1.getFullYear();
+            if(curr_date<10){curr_date='0'+curr_date};
+            if(curr_month<10){curr_month='0'+curr_month};
+            var time = (curr_year + "-" + curr_month + "-" + curr_date);
+
+            ddt1 = new Date(ddt1.getTime() - period);
+            ddt2 = new Date(ddt2.getTime() - period);
+            hotspotLayer.setDateInterval(ddt1, ddt2);
+            dailyLayer.setDateInterval(ddt1, ddt2);
+            observerLayer.setDateInterval(ddt1, ddt2);
+            observerDailyClustersLayer.setDateInterval(ddt1, ddt2);
+            updateInfo();
+            providers['1'].layer.setUrl('https://map1a.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/' + time + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg');
+        }
+        
+        document.getElementById("next").onclick = function() {
+
+            var curr_date = ddt1.getDate();
+            var curr_month = ddt1.getMonth()+1;
+            var curr_year = ddt1.getFullYear();
+            if(curr_date<10){curr_date='0'+curr_date};
+            if(curr_month<10){curr_month='0'+curr_month};
+            var time = (curr_year + "-" + curr_month + "-" + curr_date);
+
+            ddt1 = new Date(ddt1.getTime() + period);
+            ddt2 = new Date(ddt2.getTime() + period);
+            hotspotLayer.setDateInterval(ddt1, ddt2);
+            dailyLayer.setDateInterval(ddt1, ddt2);
+            observerLayer.setDateInterval(ddt1, ddt2);
+            observerDailyClustersLayer.setDateInterval(ddt1, ddt2);
+            updateInfo();
+            providers['1'].layer.setUrl('https://map1a.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_SNPP_CorrectedReflectance_TrueColor/default/' + time + '/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg');
+        }
+    });
+
+    var iconLayers = [];
+                for (var providerId in providers) {
+                    iconLayers.push(providers[providerId]);
+                }
+    L.control.iconLayers(iconLayers).addTo(map);
+
+</script>
+
+</body>
+</html>
