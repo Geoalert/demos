@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Search</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+	<link rel="stylesheet" href="demo.css" />
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+	<style>
+		body, html, #mapid {
+			height:100%;
+			margin:0;
+		}
+	</style>
+	
+</head>
+<body>
+	<div class="legend">
+		<img src="legend.png"/>
+	</div>
+
+
+<div id="mapid"></div>
+<script>
+
+	var mymap = L.map('mapid').setView([20.0, 40.09], 3);
+
+
+	L.tileLayer('http://maps.kosmosnimki.ru/TileSender.ashx?ModeKey=tile&ftc=osm&srs=3857&z={z}&x={x}&y={y}&LayerName=C1DEB466B9884037B078834ED0F4559A&api_key=0N5PO5JM7F', {
+		maxZoom: 14,
+		id: 'sattelite',
+		attribution: "Search.kosmosnimki"
+	}).addTo(mymap);
+
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>
