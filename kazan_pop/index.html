@@ -12,7 +12,9 @@
   </style>
 </head>
 <body>
-
+<div class="legend" style="position: absolute; right: 20px; top:20px; padding: 50px; background-color: white; z-index:100">
+  <img src="legend.png" />
+</div>
 <div id='map'></div>
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ29kbmlrIiwiYSI6ImNpbjFnbmZ4YTAwb292bmx5YmRuaG56bTkifQ.h24Lei1v6Y2RjljFkWqCng';
@@ -20,7 +22,8 @@ const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/godnik/cjscxeowf0fvt1fqjli97ko67',
   center: [49.137894, 55.783625],
-  zoom: 13.7
+  zoom: 13.7,
+  pitch: 45
 });
 </script>
 
