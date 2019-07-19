@@ -52,4 +52,12 @@
 
 /*about*/
 
-.logo {margin: 20px}
+.logo {    
+    bottom: 10px;
+    background: white;
+    position: absolute;
+    /* top: 20px; */
+    z-index: 1111;
+    right: 10px;
+    padding: 10px;
+    border-radius: 2px;}
