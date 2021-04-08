@@ -5,8 +5,9 @@
 * [Vegetation detection and classification within powerline corridors](https://geoalert.github.io/demos/powerline/)
 
 ## Urban demos
-* [Cadastre map with auto generated buildings masks to find gaps in official cadastre data, Moscow, Mytishchi](https://geoalert.github.io/demos/cadastre/)
-* [Detection of constructing areas and buildings. Calculation of B&C (building & construction) index for sample cities](https://geoalert.github.io/constructions/)
+* [Detection of constructing areas and buildings. Calculation of building & construction index for the whole cities](https://geoalert.github.io/constructions/)
+**NEW!**
+* [New model for Construction detection was applied to the whole Moscow + Moscow region area. The number of construction sites detected has been compared to the governmental bank statistics database](https://geoalert.github.io/demos/construction_moscow/)
 
 ## Emergency Mapping
 * [Buildings Dataset for Irkutsk region, Russia, that was heavily flooded in summer 2019](https://geoalert.github.io/Irkutsk-flood/)
