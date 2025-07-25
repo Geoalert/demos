@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/Extent_1.js"></script>
+        <script src="data/stratmap24landparcels_48491_williamson_20240601_2.js"></script>
+        <script src="data/tx_buildings_large_areatx_presale_buildings_large_area_3.js"></script>
+        <script src="data/tx_vegetation_large_areatx_presale_vegetation_large_area_4.js"></script>
+        <script src="data/tx_swmp_large_areatx_presale_swmp_large_area_5.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:10
+        }).fitBounds([[30.545907069342867,-97.85936378941108],[30.549413735695666,-97.85377265306573]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_ArcGISOnline_0');
+        map.getPane('pane_ArcGISOnline_0').style.zIndex = 400;
+        var layer_ArcGISOnline_0 = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_ArcGISOnline_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 10,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_ArcGISOnline_0;
+        map.addLayer(layer_ArcGISOnline_0);
+        function pop_Extent_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MINX'] !== null ? autolinker.link(feature.properties['MINX'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MINY'] !== null ? autolinker.link(feature.properties['MINY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAXX'] !== null ? autolinker.link(feature.properties['MAXX'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAXY'] !== null ? autolinker.link(feature.properties['MAXY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CNTX'] !== null ? autolinker.link(feature.properties['CNTX'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CNTY'] !== null ? autolinker.link(feature.properties['CNTY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AREA'] !== null ? autolinker.link(feature.properties['AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PERIM'] !== null ? autolinker.link(feature.properties['PERIM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['HEIGHT'] !== null ? autolinker.link(feature.properties['HEIGHT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WIDTH'] !== null ? autolinker.link(feature.properties['WIDTH'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Extent_1_0() {
+            return {
+                pane: 'pane_Extent_1',
+                opacity: 1,
+                color: 'rgba(228,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Extent_1');
+        map.getPane('pane_Extent_1').style.zIndex = 401;
+        map.getPane('pane_Extent_1').style['mix-blend-mode'] = 'normal';
+        var layer_Extent_1 = new L.geoJson(json_Extent_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Extent_1',
+            layerName: 'layer_Extent_1',
+            pane: 'pane_Extent_1',
+            onEachFeature: pop_Extent_1,
+            style: style_Extent_1_0,
+        });
+        bounds_group.addLayer(layer_Extent_1);
+        map.addLayer(layer_Extent_1);
+        function pop_stratmap24landparcels_48491_williamson_20240601_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Prop_ID'] !== null ? autolinker.link(feature.properties['Prop_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEO_ID'] !== null ? autolinker.link(feature.properties['GEO_ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OWNER_NAME'] !== null ? autolinker.link(feature.properties['OWNER_NAME'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_CARE'] !== null ? autolinker.link(feature.properties['NAME_CARE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGAL_AREA'] !== null ? autolinker.link(feature.properties['LEGAL_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LGL_AREA_U'] !== null ? autolinker.link(feature.properties['LGL_AREA_U'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GIS_AREA'] !== null ? autolinker.link(feature.properties['GIS_AREA'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GIS_AREA_U'] !== null ? autolinker.link(feature.properties['GIS_AREA_U'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LEGAL_DESC'] !== null ? autolinker.link(feature.properties['LEGAL_DESC'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STAT_LAND_'] !== null ? autolinker.link(feature.properties['STAT_LAND_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LOC_LAND_U'] !== null ? autolinker.link(feature.properties['LOC_LAND_U'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LAND_VALUE'] !== null ? autolinker.link(feature.properties['LAND_VALUE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['IMP_VALUE'] !== null ? autolinker.link(feature.properties['IMP_VALUE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MKT_VALUE'] !== null ? autolinker.link(feature.properties['MKT_VALUE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_ADDR'] !== null ? autolinker.link(feature.properties['SITUS_ADDR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_NUM'] !== null ? autolinker.link(feature.properties['SITUS_NUM'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_STRE'] !== null ? autolinker.link(feature.properties['SITUS_STRE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_ST_1'] !== null ? autolinker.link(feature.properties['SITUS_ST_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_ST_2'] !== null ? autolinker.link(feature.properties['SITUS_ST_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_CITY'] !== null ? autolinker.link(feature.properties['SITUS_CITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_STAT'] !== null ? autolinker.link(feature.properties['SITUS_STAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SITUS_ZIP'] !== null ? autolinker.link(feature.properties['SITUS_ZIP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_ADDR'] !== null ? autolinker.link(feature.properties['MAIL_ADDR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_LINE1'] !== null ? autolinker.link(feature.properties['MAIL_LINE1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_LINE2'] !== null ? autolinker.link(feature.properties['MAIL_LINE2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_CITY'] !== null ? autolinker.link(feature.properties['MAIL_CITY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_STAT'] !== null ? autolinker.link(feature.properties['MAIL_STAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MAIL_ZIP'] !== null ? autolinker.link(feature.properties['MAIL_ZIP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SOURCE'] !== null ? autolinker.link(feature.properties['SOURCE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DATE_ACQ'] !== null ? autolinker.link(feature.properties['DATE_ACQ'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FIPS'] !== null ? autolinker.link(feature.properties['FIPS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTY'] !== null ? autolinker.link(feature.properties['COUNTY'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TAX_YEAR'] !== null ? autolinker.link(feature.properties['TAX_YEAR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['YEAR_BUILT'] !== null ? autolinker.link(feature.properties['YEAR_BUILT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(feature.properties['OBJECTID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_stratmap24landparcels_48491_williamson_20240601_2_0() {
+            return {
+                pane: 'pane_stratmap24landparcels_48491_williamson_20240601_2',
+                opacity: 1,
+                color: 'rgba(53,255,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_stratmap24landparcels_48491_williamson_20240601_2');
+        map.getPane('pane_stratmap24landparcels_48491_williamson_20240601_2').style.zIndex = 402;
+        map.getPane('pane_stratmap24landparcels_48491_williamson_20240601_2').style['mix-blend-mode'] = 'normal';
+        var layer_stratmap24landparcels_48491_williamson_20240601_2 = new L.geoJson(json_stratmap24landparcels_48491_williamson_20240601_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_stratmap24landparcels_48491_williamson_20240601_2',
+            layerName: 'layer_stratmap24landparcels_48491_williamson_20240601_2',
+            pane: 'pane_stratmap24landparcels_48491_williamson_20240601_2',
+            onEachFeature: pop_stratmap24landparcels_48491_williamson_20240601_2,
+            style: style_stratmap24landparcels_48491_williamson_20240601_2_0,
+        });
+        bounds_group.addLayer(layer_stratmap24landparcels_48491_williamson_20240601_2);
+        map.addLayer(layer_stratmap24landparcels_48491_williamson_20240601_2);
+        function pop_tx_buildings_large_areatx_presale_buildings_large_area_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape_type'] !== null ? autolinker.link(feature.properties['shape_type'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_tx_buildings_large_areatx_presale_buildings_large_area_3_0() {
+            return {
+                pane: 'pane_tx_buildings_large_areatx_presale_buildings_large_area_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(249,48,229,0.7019607843137254)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_tx_buildings_large_areatx_presale_buildings_large_area_3');
+        map.getPane('pane_tx_buildings_large_areatx_presale_buildings_large_area_3').style.zIndex = 403;
+        map.getPane('pane_tx_buildings_large_areatx_presale_buildings_large_area_3').style['mix-blend-mode'] = 'normal';
+        var layer_tx_buildings_large_areatx_presale_buildings_large_area_3 = new L.geoJson(json_tx_buildings_large_areatx_presale_buildings_large_area_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_tx_buildings_large_areatx_presale_buildings_large_area_3',
+            layerName: 'layer_tx_buildings_large_areatx_presale_buildings_large_area_3',
+            pane: 'pane_tx_buildings_large_areatx_presale_buildings_large_area_3',
+            onEachFeature: pop_tx_buildings_large_areatx_presale_buildings_large_area_3,
+            style: style_tx_buildings_large_areatx_presale_buildings_large_area_3_0,
+        });
+        bounds_group.addLayer(layer_tx_buildings_large_areatx_presale_buildings_large_area_3);
+        map.addLayer(layer_tx_buildings_large_areatx_presale_buildings_large_area_3);
+        function pop_tx_vegetation_large_areatx_presale_vegetation_large_area_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['object_type'] !== null ? autolinker.link(feature.properties['object_type'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['class_id'] !== null ? autolinker.link(feature.properties['class_id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['max_height'] !== null ? autolinker.link(feature.properties['max_height'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+        var pattern_tx_vegetation_large_areatx_presale_vegetation_large_area_4_0 = new L.StripePattern({
+            weight: 0.5,
+            spaceWeight: 2.0,
+            color: '#10da0a',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_tx_vegetation_large_areatx_presale_vegetation_large_area_4_0.addTo(map);
+        function style_tx_vegetation_large_areatx_presale_vegetation_large_area_4_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(44,187,227,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,255,216,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(101,219,107,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule3_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(188,231,37,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule4_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(56,128,54,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,236,74,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule5_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(0,41,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(48,115,247,0.7019607843137254)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule6_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(76,161,82,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(103,186,101,0.8)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule7_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                opacity: 1,
+                color: 'rgba(247,146,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,202,66,1.0)',
+                interactive: true,
+            };
+                }
+                else if (exp_tx_vegetation_large_areatx_presale_vegetation_large_area_4rule8_eval_expression(context)) {
+                  return {
+                pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_tx_vegetation_large_areatx_presale_vegetation_large_area_4_0,
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4');
+        map.getPane('pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4').style.zIndex = 404;
+        map.getPane('pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4').style['mix-blend-mode'] = 'normal';
+        var layer_tx_vegetation_large_areatx_presale_vegetation_large_area_4 = new L.geoJson(json_tx_vegetation_large_areatx_presale_vegetation_large_area_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+            layerName: 'layer_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+            pane: 'pane_tx_vegetation_large_areatx_presale_vegetation_large_area_4',
+            onEachFeature: pop_tx_vegetation_large_areatx_presale_vegetation_large_area_4,
+            style: style_tx_vegetation_large_areatx_presale_vegetation_large_area_4_0,
+        });
+        bounds_group.addLayer(layer_tx_vegetation_large_areatx_presale_vegetation_large_area_4);
+        map.addLayer(layer_tx_vegetation_large_areatx_presale_vegetation_large_area_4);
+        function pop_tx_swmp_large_areatx_presale_swmp_large_area_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['_crs'] !== null ? autolinker.link(feature.properties['_crs'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['_y_res'] !== null ? autolinker.link(feature.properties['_y_res'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['_x_res'] !== null ? autolinker.link(feature.properties['_x_res'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['confidence'] !== null ? autolinker.link(feature.properties['confidence'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_tx_swmp_large_areatx_presale_swmp_large_area_5_0() {
+            return {
+                pane: 'pane_tx_swmp_large_areatx_presale_swmp_large_area_5',
+                opacity: 1,
+                color: 'rgba(0,0,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_tx_swmp_large_areatx_presale_swmp_large_area_5');
+        map.getPane('pane_tx_swmp_large_areatx_presale_swmp_large_area_5').style.zIndex = 405;
+        map.getPane('pane_tx_swmp_large_areatx_presale_swmp_large_area_5').style['mix-blend-mode'] = 'normal';
+        var layer_tx_swmp_large_areatx_presale_swmp_large_area_5 = new L.geoJson(json_tx_swmp_large_areatx_presale_swmp_large_area_5, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_tx_swmp_large_areatx_presale_swmp_large_area_5',
+            layerName: 'layer_tx_swmp_large_areatx_presale_swmp_large_area_5',
+            pane: 'pane_tx_swmp_large_areatx_presale_swmp_large_area_5',
+            onEachFeature: pop_tx_swmp_large_areatx_presale_swmp_large_area_5,
+            style: style_tx_swmp_large_areatx_presale_swmp_large_area_5_0,
+        });
+        bounds_group.addLayer(layer_tx_swmp_large_areatx_presale_swmp_large_area_5);
+        map.addLayer(layer_tx_swmp_large_areatx_presale_swmp_large_area_5);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/tx_swmp_large_areatx_presale_swmp_large_area_5.png" /> tx_swmp_large_area — tx_presale_swmp_large_area': layer_tx_swmp_large_areatx_presale_swmp_large_area_5,'tx_vegetation_large_area — tx_presale_vegetation_large_area<br /><table><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_050.png" /></td><td>0 - 5</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_791.png" /></td><td>7 - 9</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_9122.png" /></td><td>9 - 12</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_12173.png" /></td><td>12 - 17</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_174.png" /></td><td>17+</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_00m04m5.png" /></td><td>00m-04m</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_04m10m6.png" /></td><td>04m-10m</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_10m99m7.png" /></td><td>10m-99m</td></tr><tr><td style="text-align: center;"><img src="legend/tx_vegetation_large_areatx_presale_vegetation_large_area_4_forest8.png" /></td><td>forest</td></tr></table>': layer_tx_vegetation_large_areatx_presale_vegetation_large_area_4,'<img src="legend/tx_buildings_large_areatx_presale_buildings_large_area_3.png" /> tx_buildings_large_area — tx_presale_buildings_large_area': layer_tx_buildings_large_areatx_presale_buildings_large_area_3,'<img src="legend/stratmap24landparcels_48491_williamson_20240601_2.png" /> stratmap24-landparcels_48491_williamson_20240601': layer_stratmap24landparcels_48491_williamson_20240601_2,'<img src="legend/Extent_1.png" /> Extent': layer_Extent_1,"ArcGIS Online": layer_ArcGISOnline_0,},{collapsed:false}).addTo(map);
+        setBounds();
+        </script>
+    </body>
+</html>
